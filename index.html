@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#111827" />
+    <meta name="description" content="Delegate work without chasing your employees." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="%BASE_URL%icons/icon-192.png" />
+    <title>TeamTrack</title>
+    <script>
+      // Decodes the redirect encoded by public/404.html (GitHub Pages SPA
+      // fallback) and restores the real URL before React Router mounts, so
+      // deep links and page refreshes work correctly on GitHub Pages.
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&')
+            })
+            .join('?')
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash)
+        }
+      })(window.location)
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
