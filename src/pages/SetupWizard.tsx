@@ -1,17 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { createBusiness, createInvite } from '@/services/business'
 import { createTask } from '@/services/tasks'
 import { ErrorBanner } from '@/components/StatusBits'
 import InviteShareBox from '@/components/InviteShareBox'
+import FullScreenLoader from '@/components/FullScreenLoader'
 import { getInviteLink } from '@/utils/url'
 import { APP_CONFIG } from '@/config'
 
 const CATEGORIES = ['Real Estate', 'Sales', 'Marketing Agency', 'Retail', 'Restaurant', 'Salon', 'Gym', 'Contractor', 'Service Business', 'Other']
 
 export default function SetupWizard() {
-  const { user, refresh } = useAuth()
+  const { user, business, loading: authLoading, refresh } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -27,6 +28,22 @@ export default function SetupWizard() {
 
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDueTime, setTaskDueTime] = useState('18:00')
+
+  // This page is only for people who don't have a business yet (new owners
+  // partway through signup). If someone already belongs to one — an
+  // employee whose invite was accepted, or an owner who already finished
+  // setup — send them straight to their dashboard instead of asking them
+  // to "create a business" a second time. This is a safety net on top of
+  // the actual fixes in JoinInvite.tsx and Login.tsx; it protects against
+  // any other path that might land someone here with a business that just
+  // hasn't loaded into this component's render yet.
+  useEffect(() => {
+    if (!authLoading && business) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [authLoading, business, navigate])
+
+  if (authLoading || business) return <FullScreenLoader />
 
   async function handleCreateBusiness() {
     if (!user || !businessName.trim()) return

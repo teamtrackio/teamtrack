@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
+import { useAuth } from '@/hooks/useAuth'
 import { ErrorBanner } from '@/components/StatusBits'
 import { APP_CONFIG } from '@/config'
 
 export default function Login() {
+  const { refresh } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,11 +18,17 @@ export default function Login() {
     setError(null)
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
     if (error) {
+      setLoading(false)
       setError('Couldn\u2019t log in. Check your email and password and try again.')
       return
     }
+    // Without this, navigating immediately can race the auth-state listener
+    // that's still loading which business this user belongs to — landing
+    // them on /setup instead of their actual dashboard (see the longer
+    // explanation in JoinInvite.tsx, which hits the same underlying issue).
+    await refresh()
+    setLoading(false)
     navigate('/dashboard')
   }
 

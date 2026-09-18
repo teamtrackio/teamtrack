@@ -2,11 +2,13 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
 import { acceptInvite } from '@/services/business'
+import { useAuth } from '@/hooks/useAuth'
 import { ErrorBanner } from '@/components/StatusBits'
 import { APP_CONFIG } from '@/config'
 
 export default function JoinInvite() {
   const { token } = useParams<{ token: string }>()
+  const { refresh } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -42,6 +44,16 @@ export default function JoinInvite() {
 
       // ...then attach this user to the invited business_members row.
       await acceptInvite(token)
+
+      // IMPORTANT: signing up/in a moment ago already triggered the auth
+      // context to load "what business does this user belong to?" — at
+      // that point the invite row above had no user_id yet, so it correctly
+      // found nothing and cached business=null. acceptInvite() has just
+      // fixed that in the database, but nothing re-reads it automatically,
+      // so without this explicit refresh() the app would still think this
+      // person has no business and send them to /setup instead of their
+      // actual dashboard.
+      await refresh()
       navigate('/dashboard')
     } catch (err: any) {
       setError(err.message?.includes('expired') || err.message?.includes('invalid')
