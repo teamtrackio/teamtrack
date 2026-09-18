@@ -3,6 +3,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { getEmployees, createInvite, getEmployeeCompletion } from '@/services/business'
 import { ErrorBanner, EmptyState } from '@/components/StatusBits'
 import FullScreenLoader from '@/components/FullScreenLoader'
+import InviteShareBox from '@/components/InviteShareBox'
+import { getInviteLink } from '@/utils/url'
 
 export default function OwnerEmployees() {
   const { business } = useAuth()
@@ -12,6 +14,7 @@ export default function OwnerEmployees() {
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [inviteLink, setInviteLink] = useState<string | null>(null)
+  const [invitedName, setInvitedName] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -37,7 +40,8 @@ export default function OwnerEmployees() {
     setError(null)
     try {
       const invite = await createInvite(business.id, name.trim())
-      setInviteLink(`${window.location.origin}/join/${invite.invite_token}`)
+      setInviteLink(getInviteLink(invite.invite_token))
+      setInvitedName(name.trim())
       setName('')
       await load()
     } catch {
@@ -68,11 +72,7 @@ export default function OwnerEmployees() {
           <button className="btn-primary w-full" disabled={saving || !name.trim()} onClick={handleInvite}>
             {saving ? 'Creating invite…' : 'Create invite link'}
           </button>
-          {inviteLink && (
-            <div className="bg-brand-50 text-sm rounded-xl p-3 break-all">
-              Share this link — it expires in 7 days and can be used once: <span className="font-medium">{inviteLink}</span>
-            </div>
-          )}
+          {inviteLink && <InviteShareBox link={inviteLink} employeeName={invitedName ?? undefined} />}
         </div>
       )}
 

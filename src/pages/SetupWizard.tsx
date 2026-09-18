@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { createBusiness, createInvite } from '@/services/business'
 import { createTask } from '@/services/tasks'
 import { ErrorBanner } from '@/components/StatusBits'
+import InviteShareBox from '@/components/InviteShareBox'
+import { getInviteLink } from '@/utils/url'
 import { APP_CONFIG } from '@/config'
 
 const CATEGORIES = ['Real Estate', 'Sales', 'Marketing Agency', 'Retail', 'Restaurant', 'Salon', 'Gym', 'Contractor', 'Service Business', 'Other']
@@ -51,7 +53,7 @@ export default function SetupWizard() {
     try {
       const invite = await createInvite(businessId, employeeName.trim())
       setEmployeeMemberId(invite.member_id)
-      setInviteLink(`${window.location.origin}/join/${invite.invite_token}`)
+      setInviteLink(getInviteLink(invite.invite_token))
       setStep(4)
     } catch {
       setError('Couldn\u2019t add employee. Please try again.')
@@ -107,7 +109,7 @@ export default function SetupWizard() {
         {step === 0 && (
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">Welcome to {APP_CONFIG.productName} 👋</h1>
-            <p className="text-gray-500 mb-8">Let\u2019s set up your business in a couple of minutes.</p>
+            <p className="text-gray-500 mb-8">Let’s set up your business in a couple of minutes.</p>
             <button className="btn-primary w-full" onClick={() => setStep(1)}>
               Get started
             </button>
@@ -116,7 +118,7 @@ export default function SetupWizard() {
 
         {step === 1 && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">What\u2019s your business called?</h2>
+            <h2 className="text-xl font-semibold mb-4">What’s your business called?</h2>
             <input className="input mb-4" placeholder="e.g. Sharma Real Estate" value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
             <button className="btn-primary w-full" disabled={!businessName.trim()} onClick={() => setStep(2)}>
               Next
@@ -149,11 +151,7 @@ export default function SetupWizard() {
             <h2 className="text-xl font-semibold mb-2">Add your first employee</h2>
             <p className="text-gray-500 text-sm mb-4">You can add more later. Each employee gets a secure invite link.</p>
             <input className="input mb-4" placeholder="Employee name" value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} />
-            {inviteLink && (
-              <div className="bg-brand-50 text-sm rounded-xl p-3 mb-4 break-all">
-                Share this link with them: <span className="font-medium">{inviteLink}</span>
-              </div>
-            )}
+            {inviteLink && <div className="mb-4"><InviteShareBox link={inviteLink} employeeName={employeeName} /></div>}
             <div className="flex gap-2">
               <button className="btn-secondary flex-1" onClick={() => setStep(4)}>
                 Skip for now

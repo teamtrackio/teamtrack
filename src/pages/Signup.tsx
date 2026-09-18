@@ -45,7 +45,7 @@ export default function Signup() {
       <div className="min-h-screen flex items-center justify-center px-6 text-center">
         <div>
           <h2 className="text-xl font-semibold mb-2">Check your email</h2>
-          <p className="text-gray-500 max-w-sm">We\u2019ve sent a confirmation link to {email}. Click it, then come back and log in.</p>
+          <p className="text-gray-500 max-w-sm">We’ve sent a confirmation link to {email}. Click it, then come back and log in.</p>
           <Link to="/login" className="btn-primary inline-block mt-6">
             Go to login
           </Link>

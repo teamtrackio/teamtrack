@@ -28,7 +28,7 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-1">Reset password</h1>
-        <p className="text-gray-500 mb-6">We\u2019ll email you a link to reset it.</p>
+        <p className="text-gray-500 mb-6">We’ll email you a link to reset it.</p>
         <ErrorBanner message={error} />
         <SuccessBanner message={sent ? 'Check your email for a reset link.' : null} />
         {!sent && (
